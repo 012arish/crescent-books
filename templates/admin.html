@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid bg-light min-vh-100">
+    <div class="container py-5">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>⚙️ Admin Dashboard</h2>
+            <a href="/" class="btn btn-outline-dark">View Live Site →</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row g-4">
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">➕ Upload New Book</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form action="/admin" method="POST" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Book Title</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Author</label>
+                                <input type="text" name="author" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Cover Image</label>
+                                <input type="file" name="image" class="form-control" accept="image/*" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Preview Image</label>
+                                <input type="file" name="preview_image" class="form-control" accept="image/*" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Description</label>
+                                <textarea name="description" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 py-2">Upload Book</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" class="ps-4">Images</th>
+                                        <th scope="col">Details</th>
+                                        <th scope="col" class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for book in books %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex">
+                                                <img src="{{ book[4] }}" style="width: 40px; height: 60px; object-fit: contain;" class="rounded border me-2 bg-white">
+                                                {% if book[5] %}
+                                                <img src="{{ book[5] }}" style="width: 40px; height: 60px; object-fit: contain; opacity: 0.7;" class="rounded border bg-white">
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="d-block fw-bold">{{ book[1] }}</span>
+                                            <small class="text-muted">by {{ book[2] }}</small>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <a href="/delete/{{ book[0] }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this book?')">
+                                                🗑 Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
