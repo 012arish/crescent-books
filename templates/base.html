@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cresentbooks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* --- COMPACT CARD DESIGN --- */
+        .book-card-img-wrapper {
+            height: 250px;
+            width: 100%;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 1px solid #eee;
+        }
+
+        .book-card img {
+            max-height: 90%;
+            max-width: 90%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .book-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .book-card {
+            transition: box-shadow 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .book-card:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+        .book-card .card-body { padding: 1rem; }
+        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .card-subtitle { font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .card-text { font-size: 0.9rem; line-height: 1.4; color: #555; }
+        
+        .hero { background: #f8f9fa; padding: 40px 0; margin-bottom: 30px; }
+
+        /* --- FOOTER & SECTIONS --- */
+        footer { background-color: #212529; color: #ffffff; margin-top: auto; }
+        .publisher-badge {
+            background-color: #4a3da8; padding: 5px 15px; border-radius: 5px;
+            font-weight: bold; display: inline-block; margin-bottom: 10px;
+        }
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* Smooth Scrolling for Anchor Links */
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Crescent Books" height="50" class="me-2 rounded">
+                <span class="d-none d-sm-inline">Crescent Books</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="#about">About</a>
+                    <a class="nav-link" href="#contact">Contact</a>
+                    
+                    {% if session.get('role') == 'admin' %}
+                        <a class="nav-link btn btn-outline-warning text-warning ms-2" href="/admin">⚙️ Admin Panel</a>
+                        <a class="nav-link text-danger ms-2" href="/logout">Logout</a>
+                    {% elif session.get('role') == 'user' %}
+                        <span class="nav-link text-light ms-2">👤 {{ session.get('user') }}</span>
+                        <a class="nav-link text-danger ms-2" href="/logout">Logout</a>
+                    {% else %}
+                        <a class="nav-link" href="/login">Login</a>
+                        <a class="nav-link btn btn-primary text-white ms-2 px-3" href="/register">Register</a>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+    <footer class="py-5 mt-5">
+        <div class="container text-center">
+            <div class="mb-2"><span class="publisher-badge">प्रकाशक</span></div>
+            <h2 class="fw-bold text-uppercase mb-3" style="color: #ff4d4d; letter-spacing: 1px;">CRESCENT BOOKS</h2>
+            <div class="mb-3 text-light opacity-75">
+                <p class="mb-1">Behind Paalki Lodge, Near SkyLine Heights Flats,</p>
+                <p class="mb-1">Sliver Estate, Manjoorgarhi, Aligarh-202001</p>
+            </div>
+            <div class="fw-bold fs-5">
+                <span class="text-warning">Mobile:</span> 9310630528, 7017100772
+            </div>
+            <div class="fw-bold fs-5 mt-1">
+                <span class="text-warning">Email:</span> 
+                <a href="mailto:crescentbookpublishers1991@gmail.com" class="text-white text-decoration-none">crescentbookpublishers1991@gmail.com</a>
+            </div>
+            <div class="mt-4 pt-3 border-top border-secondary text-muted small">
+                &copy; 2026 Crescent Books. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
