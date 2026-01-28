@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">✏️ Edit Book Details</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('edit_book', book_id=book[0]) }}" method="POST" enctype="multipart/form-data">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Book Title</label>
+                            <input type="text" name="title" class="form-control" value="{{ book[1] }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Author</label>
+                            <input type="text" name="author" class="form-control" value="{{ book[2] }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Current Cover</label>
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="{{ book[4] }}" style="height: 60px; width: 40px; object-fit: cover;" class="border rounded me-3">
+                                <small class="text-muted">Upload new file to change (optional)</small>
+                            </div>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Current Preview Page</label>
+                            {% if book[5] %}
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="{{ book[5] }}" style="height: 60px; width: 40px; object-fit: cover;" class="border rounded me-3">
+                                <small class="text-muted">Upload new file to change (optional)</small>
+                            </div>
+                            {% endif %}
+                            <input type="file" name="preview_image" class="form-control" accept="image/*">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Description</label>
+                            <textarea name="description" class="form-control" rows="5" required>{{ book[3] }}</textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-warning w-100 fw-bold">Update Book</button>
+                            <a href="/admin" class="btn btn-secondary w-100">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
