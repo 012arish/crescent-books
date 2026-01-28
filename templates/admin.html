@@ -59,7 +59,10 @@
             </div>
 
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-muted">📚 Books Inventory</h5>
+                    </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
@@ -97,6 +100,56 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white border-bottom">
+                        <h5 class="mb-0">📩 Customer Enquiries</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" class="ps-4">Sender Info</th>
+                                        <th scope="col">Message</th>
+                                        <th scope="col" class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for msg in messages %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="d-block fw-bold">{{ msg[1] }}</span>
+                                            <small class="text-primary">{{ msg[2] }}</small><br>
+                                            <span class="badge bg-light text-dark border">{{ msg[3] }}</span>
+                                        </td>
+                                        <td>
+                                            <p class="mb-0 text-muted small" style="max-width: 300px;">
+                                                {{ msg[4] }}
+                                            </p>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <a href="mailto:{{ msg[2] }}?subject=Re: {{ msg[3] }}" class="btn btn-outline-primary btn-sm me-1">
+                                                Reply
+                                            </a>
+                                            <a href="/delete_message/{{ msg[0] }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this message?')">
+                                                🗑
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted">
+                                            No new messages.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
