@@ -22,7 +22,7 @@ def init_db():
     conn = sqlite3.connect('books.db')
     c = conn.cursor()
     
-    # Create Books Table
+    # 1. Books Table
     c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='books'")
     if c.fetchone()[0] == 0:
         c.execute('''CREATE TABLE books 
@@ -33,9 +33,13 @@ def init_db():
         if 'preview_image' not in columns:
              c.execute("ALTER TABLE books ADD COLUMN preview_image TEXT")
 
-    # Create Users Table
+    # 2. Users Table
     c.execute('''CREATE TABLE IF NOT EXISTS users 
                  (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT)''')
+
+    # 3. NEW: Messages Table (For Contact Form)
+    c.execute('''CREATE TABLE IF NOT EXISTS messages 
+                 (id INTEGER PRIMARY KEY, name TEXT, email TEXT, subject TEXT, message TEXT)''')
 
     conn.commit()
     conn.close()
@@ -75,16 +79,25 @@ def index():
     conn.close()
     return render_template('index.html', books=books)
 
-# NEW: Contact Form Handler
+# UPDATED: Contact Form Handler (Saves to DB now)
 @app.route('/contact', methods=['POST'])
 def contact():
-    # In a real app, you would add email sending logic here.
-    # For now, we simulate a successful submission.
     name = request.form.get('name')
-    flash(f"✅ Thank you, {name}! We have received your enquiry and will contact you shortly.", "success")
+    email = request.form.get('email')
+    subject = request.form.get('subject')
+    message = request.form.get('message')
+
+    conn = sqlite3.connect('books.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO messages (name, email, subject, message) VALUES (?, ?, ?, ?)",
+              (name, email, subject, message))
+    conn.commit()
+    conn.close()
+
+    flash(f"✅ Thank you, {name}! We have received your enquiry.", "success")
     return redirect(url_for('index'))
 
-# --- AUTHENTICATION ROUTES ---
+# --- AUTH ROUTES ---
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -142,12 +155,14 @@ def logout():
 
 # --- ADMIN ROUTES ---
 
+# UPDATED: Admin Route (Fetches Messages AND Books)
 @app.route('/admin', methods=['GET', 'POST'])
 @admin_required
 def admin():
     conn = sqlite3.connect('books.db')
     c = conn.cursor()
 
+    # Handle Book Upload
     if request.method == 'POST':
         title = request.form['title']
         author = request.form['author']
@@ -176,10 +191,16 @@ def admin():
             flash("✅ Book added successfully!", "success")
             return redirect(url_for('admin'))
 
+    # Fetch Data for Dashboard
     c.execute("SELECT * FROM books")
     books = c.fetchall()
+    
+    # NEW: Fetch Messages
+    c.execute("SELECT * FROM messages ORDER BY id DESC")
+    messages = c.fetchall()
+    
     conn.close()
-    return render_template('admin.html', books=books)
+    return render_template('admin.html', books=books, messages=messages)
 
 @app.route('/delete/<int:book_id>')
 @admin_required
@@ -199,6 +220,18 @@ def delete_book(book_id):
     conn.commit()
     conn.close()
     flash("🗑️ Book deleted.", "warning")
+    return redirect(url_for('admin'))
+
+# NEW: Delete Message Route
+@app.route('/delete_message/<int:msg_id>')
+@admin_required
+def delete_message(msg_id):
+    conn = sqlite3.connect('books.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM messages WHERE id=?", (msg_id,))
+    conn.commit()
+    conn.close()
+    flash("🗑️ Message deleted.", "warning")
     return redirect(url_for('admin'))
 
 @app.route('/preview/<int:book_id>')
