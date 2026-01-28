@@ -248,5 +248,55 @@ def preview(book_id):
         flash("Book not found.", "danger")
         return redirect(url_for('index'))
 
+# --- NEW EDIT ROUTE ---
+@app.route('/edit/<int:book_id>', methods=['GET', 'POST'])
+@admin_required
+def edit_book(book_id):
+    conn = sqlite3.connect('books.db')
+    c = conn.cursor()
+
+    if request.method == 'POST':
+        title = request.form['title']
+        author = request.form['author']
+        desc = request.form['description']
+        
+        # Get new files (optional)
+        cover_file = request.files.get('image')
+        preview_file = request.files.get('preview_image')
+
+        # 1. Update Text Fields First
+        c.execute("UPDATE books SET title=?, author=?, description=? WHERE id=?", 
+                  (title, author, desc, book_id))
+        
+        # 2. Update Cover Image ONLY if a new one was uploaded
+        if cover_file and cover_file.filename != '' and allowed_file(cover_file.filename):
+            filename = secure_filename(cover_file.filename)
+            cover_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            new_path = f"/static/uploads/{filename}"
+            c.execute("UPDATE books SET image=? WHERE id=?", (new_path, book_id))
+
+        # 3. Update Preview Image ONLY if a new one was uploaded
+        if preview_file and preview_file.filename != '' and allowed_file(preview_file.filename):
+            p_filename = secure_filename(preview_file.filename)
+            preview_file.save(os.path.join(app.config['UPLOAD_FOLDER'], p_filename))
+            new_p_path = f"/static/uploads/{p_filename}"
+            c.execute("UPDATE books SET preview_image=? WHERE id=?", (new_p_path, book_id))
+
+        conn.commit()
+        conn.close()
+        flash("✅ Book updated successfully!", "success")
+        return redirect(url_for('admin'))
+
+    # GET request: Load the form with existing data
+    c.execute("SELECT * FROM books WHERE id=?", (book_id,))
+    book = c.fetchone()
+    conn.close()
+    
+    if book:
+        return render_template('edit_book.html', book=book)
+    else:
+        flash("Book not found.", "danger")
+        return redirect(url_for('admin'))
+
 if __name__ == '__main__':
     app.run(debug=True)
